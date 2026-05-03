@@ -2,6 +2,7 @@ import { Link, useLocation } from "wouter";
 import { Dumbbell, Library, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import chestBusterLogo from "@/assets/chest.png";
 
 export function Navbar() {
   const [location] = useLocation();
@@ -12,8 +13,12 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto flex h-16 items-center px-4 md:px-8 justify-between">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2 group transition-opacity hover:opacity-80">
-            <div className="bg-primary text-primary-foreground p-1.5 rounded-md group-hover:scale-105 transition-transform">
-              <Dumbbell className="w-5 h-5" />
+            <div className="text-primary-foreground p-1.5 rounded-md group-hover:scale-105 transition-transform overflow-hidden">
+              <img
+                src={chestBusterLogo}
+                alt="ChestBuster Logo"
+                className="h-10 w-10 object-contain"
+              />
             </div>
             <span className="font-black text-xl tracking-tight uppercase">CHEST<span className="text-primary">BUSTER</span></span>
           </Link>
