@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { API_BASE } from "@/lib/api";
 
 export interface User {
   id: string;
@@ -16,6 +17,18 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+async function readErrorMessage(response: Response): Promise<string> {
+  const contentType = response.headers.get("content-type") || "";
+
+  if (contentType.includes("application/json")) {
+    const data = await response.json().catch(() => null);
+    return data?.error || data?.message || "Request failed";
+  }
+
+  const text = await response.text().catch(() => "");
+  return text.trim() || "Request failed";
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -40,15 +53,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const res = await fetch("/api/auth/login", {
+    const res = await fetch(`${API_BASE}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
 
     if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || "Login failed");
+      throw new Error(await readErrorMessage(res));
     }
 
     const data = await res.json();
@@ -59,15 +71,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const register = async (email: string, password: string, fullName: string) => {
-    const res = await fetch("/api/auth/register", {
+    const res = await fetch(`${API_BASE}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password, fullName }),
     });
 
     if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || "Registration failed");
+      throw new Error(await readErrorMessage(res));
     }
 
     const data = await res.json();
