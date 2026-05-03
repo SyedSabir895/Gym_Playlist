@@ -1,8 +1,8 @@
 import { Link, useLocation } from "wouter";
-import { Dumbbell, Library, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import chestBusterLogo from "@/assets/chest.png";
+import chestBusterLogo from "@/assets/Chest-Buster.png";
 
 export function Navbar() {
   const [location] = useLocation();
@@ -60,23 +60,16 @@ export function Navbar() {
           ) : (
             <>
               <Link href="/login">
-                <Button size="sm" className="cursor-pointer">
+                <Button variant="outline" size="sm" className="cursor-pointer hover:bg-primary/60">
                   Sign In
                 </Button>
               </Link>
               <Link href="/register">
-                <Button size="sm" className="cursor-pointer">
+                <Button variant="outline" size="sm" className="cursor-pointer hover:bg-primary/40">
                   Sign Up
                 </Button>
               </Link>
             </>
-          )}
-          {!user && (
-            <Link href="/library" className="md:hidden">
-              <Button variant="ghost" size="icon">
-                <Library className="w-5 h-5" />
-              </Button>
-            </Link>
           )}
         </div>
       </div>
