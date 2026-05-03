@@ -77,8 +77,8 @@ export default function VideoDetail() {
         </Button>
       </Link>
 
-      <div className="rounded-xl overflow-hidden bg-card border border-border/50 shadow-xl ring-1 ring-white/5">
-        <div className="aspect-4/3 md:aspect-video w-full bg-black relative">
+      <div className="-mx-4 sm:mx-0 rounded-xl overflow-hidden bg-card border border-border/50 shadow-xl ring-1 ring-white/5">
+        <div className="aspect-5/4 md:aspect-video w-full bg-black relative">
           <iframe
             src={`https://www.youtube.com/embed/${video.youtubeId}?autoplay=0&rel=0`}
             title={video.title}
@@ -108,7 +108,7 @@ export default function VideoDetail() {
         <div className="shrink-0">
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" className="font-bold uppercase tracking-widest w-full md:w-auto">
+              <Button variant="destructive" className="font-bold uppercase tracking-widest w-full md:w-auto cursor-pointer">
                 <Trash2 className="w-4 h-4 mr-2" /> Delete Drill
               </Button>
             </AlertDialogTrigger>
