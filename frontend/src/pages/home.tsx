@@ -6,7 +6,7 @@ import { VideoForm } from "@/components/VideoForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, Dumbbell, PlaySquare, TrendingUp, Zap } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
+import AnimatedButton from "@/components/ui/animated-button";
 
 export default function Home() {
   const { user } = useAuth();
@@ -30,17 +30,21 @@ export default function Home() {
             Organize, save, and track your favorite gym workout videos. Build a personalized library organized by muscle groups and training styles.
           </p>
           <div className="flex gap-4 pt-4">
-            <Link href="/register">
-              <Button size="lg" className="gap-2 cursor-pointer">
-                <Zap className="w-5 h-5" />
-                Get Started
-              </Button>
-            </Link>
-            <Link href="/login">
-              <Button size="lg" variant="outline" className="cursor-pointer">
-                Sign In
-              </Button>
-            </Link>
+            <AnimatedButton
+              as="a"
+              href="/register"
+              className="gap-2 cursor-pointer bg-primary border-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 text-lg"
+            >
+              <Zap className="w-5 h-5" />
+              Get Started
+            </AnimatedButton>
+            <AnimatedButton
+              as="a"
+              href="/login"
+              className="cursor-pointer px-6 py-3 text-lg bg-transparent border-border text-foreground hover:bg-yellow-700"
+            >
+              Sign In
+            </AnimatedButton>
           </div>
         </section>
 
@@ -94,7 +98,7 @@ export default function Home() {
         </Card>
 
         <Card className="bg-card/50 border-border/50 backdrop-blur shadow-sm md:col-span-2 overflow-hidden relative">
-          <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-primary/10 to-transparent pointer-events-none" />
+          <div className="absolute right-0 top-0 h-full w-1/3 bg-linear-to-l from-primary/10 to-transparent pointer-events-none" />
           <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
             <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Top Categories</CardTitle>
             <Activity className="w-4 h-4 text-primary" />

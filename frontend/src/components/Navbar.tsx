@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import AnimatedButton from "@/components/ui/animated-button";
 import { useAuth } from "@/contexts/AuthContext";
 import chestBusterLogo from "@/assets/Chest-Buster.png";
 
@@ -17,7 +18,7 @@ export function Navbar() {
               <img
                 src={chestBusterLogo}
                 alt="ChestBuster Logo"
-                className="h-10 w-10 object-contain"
+                className="h-20 w-15 object-contain "
               />
             </div>
             <span className="font-black text-xl tracking-tight uppercase">CHEST<span className="text-primary">BUSTER</span></span>
@@ -59,16 +60,20 @@ export function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/login">
-                <Button variant="outline" size="sm" className="cursor-pointer hover:bg-primary/60">
-                  Sign In
-                </Button>
-              </Link>
-              <Link href="/register">
-                <Button variant="outline" size="sm" className="cursor-pointer hover:bg-primary/40">
-                  Sign Up
-                </Button>
-              </Link>
+              <AnimatedButton
+                as="a"
+                href="/login"
+                className="cursor-pointer rounded-md px-4 py-2 text-sm bg-white border-primary text-primary-foreground hover:bg-orange-300"
+              >
+                Sign In
+              </AnimatedButton>
+              <AnimatedButton
+                as="a"
+                href="/register"
+                className="cursor-pointer rounded-md px-4 py-2 text-sm bg-primary border-primary text-primary-foreground hover:bg-primary/90"
+              >
+                Sign Up
+              </AnimatedButton>
             </>
           )}
         </div>
