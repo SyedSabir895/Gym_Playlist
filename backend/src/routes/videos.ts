@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import { getDB, ObjectId } from "../lib/mongodb.js";
+import { verifyToken, type AuthRequest } from "../middleware/auth.js";
 
 const router = Router();
 
@@ -33,14 +34,17 @@ function toVideo(doc: Record<string, unknown>) {
     notes: doc.notes as string | undefined,
     thumbnailUrl: `https://img.youtube.com/vi/${doc.youtubeId}/hqdefault.jpg`,
     createdAt: doc.createdAt as Date,
+    userId: String(doc.userId),
   };
 }
 
-router.get("/videos/stats", async (_req, res) => {
+router.get("/videos/stats", verifyToken, async (req: AuthRequest, res) => {
   try {
     const db = await getDB();
-    const total = await db.collection("videos").countDocuments();
+    const filter = { userId: new ObjectId(req.userId!) };
+    const total = await db.collection("videos").countDocuments(filter);
     const byCategory = await db.collection("videos").aggregate([
+      { $match: filter },
       { $group: { _id: "$category", count: { $sum: 1 } } },
       { $project: { name: "$_id", count: 1, _id: 0 } },
       { $sort: { count: -1 } },
@@ -51,10 +55,10 @@ router.get("/videos/stats", async (_req, res) => {
   }
 });
 
-router.get("/videos", async (req, res) => {
+router.get("/videos", verifyToken, async (req: AuthRequest, res) => {
   try {
     const db = await getDB();
-    const filter: Record<string, unknown> = {};
+    const filter: Record<string, unknown> = { userId: new ObjectId(req.userId!) };
     if (req.query.category) filter.category = req.query.category;
     const docs = await db.collection("videos").find(filter).sort({ createdAt: -1 }).toArray();
     res.json(docs.map(toVideo));
@@ -63,7 +67,7 @@ router.get("/videos", async (req, res) => {
   }
 });
 
-router.post("/videos", async (req, res) => {
+router.post("/videos", verifyToken, async (req: AuthRequest, res) => {
   const parsed = CreateVideoBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -83,6 +87,7 @@ router.post("/videos", async (req, res) => {
       category: parsed.data.category,
       notes: parsed.data.notes ?? null,
       thumbnailUrl: `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`,
+      userId: new ObjectId(req.userId!),
       createdAt: new Date(),
     };
     const result = await db.collection("videos").insertOne(doc);
@@ -92,11 +97,14 @@ router.post("/videos", async (req, res) => {
   }
 });
 
-router.get("/videos/:id", async (req, res) => {
+router.get("/videos/:id", verifyToken, async (req: AuthRequest, res) => {
   try {
     const objectId = new ObjectId(req.params.id);
     const db = await getDB();
-    const doc = await db.collection("videos").findOne({ _id: objectId });
+    const doc = await db.collection("videos").findOne({ 
+      _id: objectId,
+      userId: new ObjectId(req.userId!)
+    });
     if (!doc) { res.status(404).json({ error: "Video not found" }); return; }
     res.json(toVideo(doc as Record<string, unknown>));
   } catch {
@@ -104,12 +112,15 @@ router.get("/videos/:id", async (req, res) => {
   }
 });
 
-router.delete("/videos/:id", async (req, res) => {
+router.delete("/videos/:id", verifyToken, async (req: AuthRequest, res) => {
   try {
     const objectId = new ObjectId(req.params.id);
     const db = await getDB();
-    const result = await db.collection("videos").deleteOne({ _id: objectId });
-    if (result.deletedCount === 0) { res.status(404).json({ error: "Video not found" }); return; }
+    const result = await db.collection("videos").deleteOne({ 
+      _id: objectId,
+      userId: new ObjectId(req.userId!)
+    });
+    if (result.deletedCount === 0) { res.status(404).json({ error: "Video not found or unauthorized" }); return; }
     res.json({ success: true, message: "Video deleted successfully" });
   } catch {
     res.status(400).json({ error: "Invalid video ID" });

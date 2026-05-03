@@ -9,6 +9,7 @@ export interface Video {
   notes?: string;
   thumbnailUrl?: string;
   createdAt: string;
+  userId: string;
 }
 
 export interface Category {
@@ -28,9 +29,20 @@ export interface CreateVideoInput {
   notes?: string;
 }
 
+function getAuthToken(): string | null {
+  return localStorage.getItem("authToken");
+}
+
 async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
+  const headers: HeadersInit = { "Content-Type": "application/json" };
+  
+  const token = getAuthToken();
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: { "Content-Type": "application/json" },
+    headers,
     ...options,
   });
   if (!res.ok) {

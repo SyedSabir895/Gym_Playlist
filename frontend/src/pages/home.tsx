@@ -1,14 +1,75 @@
 import { Link } from "wouter";
+import { useAuth } from "@/contexts/AuthContext";
 import { useGetVideoStats, useListVideos } from "@/hooks/useApi";
 import { VideoCard } from "@/components/VideoCard";
 import { VideoForm } from "@/components/VideoForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, Dumbbell, PlaySquare, TrendingUp } from "lucide-react";
+import { Activity, Dumbbell, PlaySquare, TrendingUp, Zap } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
-  const { data: stats, isLoading: statsLoading } = useGetVideoStats();
-  const { data: recentVideos, isLoading: videosLoading } = useListVideos();
+  const { user } = useAuth();
+  
+  // Only fetch videos if authenticated
+  const { data: stats, isLoading: statsLoading } = user ? useGetVideoStats() : { data: undefined, isLoading: false };
+  const { data: recentVideos, isLoading: videosLoading } = user ? useListVideos() : { data: undefined, isLoading: false };
+
+  // Landing page for unauthenticated users
+  if (!user) {
+    return (
+      <div className="space-y-12 pb-10">
+        <section className="space-y-6 py-12">
+          <div className="space-y-3">
+            <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tight">
+              ChestBuster
+            </h1>
+            <p className="text-2xl text-foreground/80">Your Personal Training Vault</p>
+          </div>
+          <p className="text-lg text-foreground/60 max-w-2xl">
+            Organize, save, and track your favorite gym workout videos. Build a personalized library organized by muscle groups and training styles.
+          </p>
+          <div className="flex gap-4 pt-4">
+            <Link href="/register">
+              <Button size="lg" className="gap-2 cursor-pointer">
+                <Zap className="w-5 h-5" />
+                Get Started
+              </Button>
+            </Link>
+            <Link href="/login">
+              <Button size="lg" variant="outline" className="cursor-pointer">
+                Sign In
+              </Button>
+            </Link>
+          </div>
+        </section>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-12 border-y border-border/40">
+          <div className="space-y-3">
+            <div className="h-12 w-12 bg-primary/20 rounded-lg flex items-center justify-center">
+              <PlaySquare className="w-6 h-6 text-primary" />
+            </div>
+            <h3 className="text-xl font-bold">Save Videos</h3>
+            <p className="text-foreground/60">Add YouTube workout videos to your personal library with custom notes.</p>
+          </div>
+          <div className="space-y-3">
+            <div className="h-12 w-12 bg-primary/20 rounded-lg flex items-center justify-center">
+              <Dumbbell className="w-6 h-6 text-primary" />
+            </div>
+            <h3 className="text-xl font-bold">Organize by Category</h3>
+            <p className="text-foreground/60">Categorize workouts by muscle groups or training types for easy access.</p>
+          </div>
+          <div className="space-y-3">
+            <div className="h-12 w-12 bg-primary/20 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-primary" />
+            </div>
+            <h3 className="text-xl font-bold">Track Progress</h3>
+            <p className="text-foreground/60">Keep your training vault organized and always have your favorite workouts at hand.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-10 pb-10">
