@@ -1,83 +1,128 @@
+import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { LogOut } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AnimatedButton from "@/components/ui/animated-button";
 import { useAuth } from "@/contexts/AuthContext";
-import chestBusterLogo from "@/assets/Chest-Buster.png";
+import chestBusterLogo from "@/assets/chesttt.png";
 
 export function Navbar() {
   const [location] = useLocation();
   const { user, logout } = useAuth();
+  const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur">
       <div className="max-w-7xl mx-auto flex h-16 items-center px-4 md:px-8 justify-between">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-2 group transition-opacity hover:opacity-80">
-            <div className="text-primary-foreground p-1.5 rounded-md group-hover:scale-105 transition-transform overflow-hidden">
-              <img
-                src={chestBusterLogo}
-                alt="ChestBuster Logo"
-                className="h-20 w-15 object-contain "
-              />
-            </div>
-            <span className="font-black text-xl tracking-tight uppercase">CHEST<span className="text-primary">BUSTER</span></span>
+        
+        {/* LEFT */}
+        <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-2">
+            <img
+              src={chestBusterLogo}
+              alt="logo"
+              className="h-10 w-auto md:h-14"
+            />
+            <span className="font-black text-lg md:text-xl uppercase">
+              CHEST<span className="text-primary">BUSTER</span>
+            </span>
           </Link>
-          <nav className="hidden md:flex items-center gap-4 text-sm font-medium">
-            {!["/", "/login", "/register"].includes(location) && (
-              <Link
-                href="/"
-                className={`transition-colors hover:text-foreground/80 ${location === "/" ? "text-foreground" : "text-foreground/60"}`}
-              >
-                Dashboard
-              </Link>
-            )}
-            {user && (
-              <Link
-                href="/library"
-                className={`transition-colors hover:text-foreground/80 ${location === "/library" ? "text-foreground" : "text-foreground/60"}`}
-              >
-                Library
-              </Link>
-            )}
-          </nav>
         </div>
-        <div className="flex items-center gap-4">
+
+        {/* DESKTOP NAV */}
+        <nav className="hidden md:flex items-center gap-4 text-sm font-medium">
+          {!["/", "/login", "/register"].includes(location) && (
+            <Link href="/">Dashboard</Link>
+          )}
+          {user && <Link href="/library">Library</Link>}
+        </nav>
+
+        {/* RIGHT SIDE */}
+        <div className="hidden md:flex items-center gap-4">
           {user ? (
             <>
-              <div className="text-sm text-foreground/60 hidden sm:block">
+              <span className="text-sm text-foreground/60">
                 {user.fullName}
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={logout}
-                className="text-foreground/60 hover:text-foreground cursor-pointer"
-              >
+              </span>
+              <Button variant="ghost" size="sm" onClick={logout}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
               </Button>
             </>
           ) : (
             <>
-              <AnimatedButton
-                as="a"
-                href="/login"
-                className="cursor-pointer rounded-md px-4 py-2 text-sm bg-white border-primary text-primary-foreground hover:bg-orange-300"
-              >
+              <AnimatedButton as="a" href="/login">
                 Sign In
               </AnimatedButton>
-              <AnimatedButton
-                as="a"
-                href="/register"
-                className="cursor-pointer rounded-md px-4 py-2 text-sm bg-primary border-primary text-primary-foreground hover:bg-primary/90"
-              >
+              <AnimatedButton as="a" href="/register">
                 Sign Up
               </AnimatedButton>
             </>
           )}
         </div>
+
+        {/* MOBILE MENU BUTTON */}
+        <button
+          className="md:hidden"
+          onClick={() => setOpen(!open)}
+        >
+          {open ? <X size={22} /> : <Menu size={22} />}
+        </button>
       </div>
+
+      {/* MOBILE MENU */}
+    {open && (
+  <div className="md:hidden px-4 pb-4 space-y-4 bg-background/95 text-foreground border-t border-border/50">
+    
+    {!["/", "/login", "/register"].includes(location) && (
+      <Link href="/" onClick={() => setOpen(false)} className="block py-2 text-foreground">
+        Dashboard
+      </Link>
+    )}
+
+    {user && (
+      <Link href="/library" onClick={() => setOpen(false)} className="block py-2 text-foreground">
+        Library
+      </Link>
+    )}
+
+    <div className="pt-4 border-t border-gray-700 space-y-3">
+      {user ? (
+        <>
+          <div className="text-sm text-foreground/70">{user.fullName}</div>
+          <Button
+            variant="ghost"
+            className="w-full"
+            onClick={() => {
+              logout();
+              setOpen(false);
+            }}
+          >
+            Logout
+          </Button>
+        </>
+      ) : (
+        <>
+          <AnimatedButton
+            as="a"
+            href="/login"
+            className="w-full text-center bg-white text-white py-2 rounded-md"
+          >
+            Sign In
+          </AnimatedButton>
+
+          <AnimatedButton
+            as="a"
+            href="/register"
+            className="w-full text-center bg-primary text-white py-2 rounded-md"
+          >
+            Sign Up
+          </AnimatedButton>
+        </>
+      )}
+    </div>
+  </div>
+)}
     </header>
   );
 }

@@ -5,13 +5,15 @@ import { motion, type MotionProps } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
 type AnimatedButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & React.AnchorHTMLAttributes<HTMLAnchorElement> & MotionProps & {
-  children?: React.ReactNode
+    children?: React.ReactNode
+    noShine?: boolean
 }
 
 const AnimatedButton: React.FC<AnimatedButtonProps & { as?: 'button' | 'a' }> = ({
   children = 'Browse Components',
   className = '',
   as = 'button',
+    noShine = false,
   whileTap = { scale: 0.97 },
   transition = {
       stiffness: 20,
@@ -27,6 +29,25 @@ const AnimatedButton: React.FC<AnimatedButtonProps & { as?: 'button' | 'a' }> = 
   ...rest
 }) => {
   const Component = (motion as any)[as] || motion.button
+
+  if (noShine) {
+    return (
+      <Component
+        {...rest}
+        whileTap={whileTap}
+        transition={transition}
+        className={cn(
+          'px-6 py-2 rounded-md relative overflow-hidden bg-neutral-50 dark:bg-black border border-neutral-300 dark:border-neutral-800',
+          'text-neutral-900 dark:text-neutral-100',
+          className
+        )}
+      >
+        <span className="tracking-wide font-light h-full w-full flex items-center justify-center relative z-10">
+          {children}
+        </span>
+      </Component>
+    )
+  }
 
   return (
       <Component
@@ -59,10 +80,7 @@ const AnimatedButton: React.FC<AnimatedButtonProps & { as?: 'button' | 'a' }> = 
               style={{
                   background: 'linear-gradient(-75deg, transparent 30%, var(--shine) 50%, transparent 70%)',
                   backgroundSize: '200% 100%',
-                  mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                  maskComposite: 'exclude',
-                  WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                  WebkitMaskComposite: 'xor',
+                  mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)'
               }}
               initial={{ backgroundPosition: '100% 0', opacity: 0 }}
               animate={{ backgroundPosition: ['100% 0', '0% 0'], opacity: [0, 1, 0] }}
