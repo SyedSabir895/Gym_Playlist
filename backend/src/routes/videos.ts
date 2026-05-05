@@ -44,7 +44,7 @@ function toVideo(doc: Record<string, unknown>) {
     category: doc.category as string,
     notes: doc.notes as string | undefined,
     thumbnailUrl: isLocal 
-      ? "https://placehold.co/600x400/000000/FFFFFF/png?text=Google+Drive+Video" 
+      ? `https://drive.google.com/thumbnail?id=${doc.googleFileId}&sz=w600` 
       : `https://img.youtube.com/vi/${doc.youtubeId}/hqdefault.jpg`,
     videoUrl: isLocal 
       ? doc.googleFileId as string // We will handle this on the frontend
