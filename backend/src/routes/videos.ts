@@ -69,10 +69,13 @@ router.post("/videos", verifyToken, upload.single("videoFile"), async (req: Auth
     let googleFileId: string | null = null;
 
     if (req.file) {
+      console.log("Checking googleToken for file upload...");
       if (!googleToken) {
-        res.status(400).json({ error: "Google access token is required for local uploads." });
+        console.error("CRITICAL: googleToken is missing in the request headers!");
+        res.status(400).json({ error: "Google access token is missing. Please log out and sign in with Google again." });
         return;
       }
+      console.log("googleToken found (length: " + googleToken.length + ")");
 
       // Upload to Google Drive
       const auth = new google.auth.OAuth2();

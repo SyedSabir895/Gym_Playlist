@@ -5,7 +5,10 @@ import { connectDB } from "./lib/mongodb.js";
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  exposedHeaders: ["x-google-token"],
+  allowedHeaders: ["Content-Type", "Authorization", "x-google-token"],
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
