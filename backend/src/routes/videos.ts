@@ -96,6 +96,17 @@ router.post("/videos", verifyToken, upload.single("videoFile"), async (req: Auth
 
       googleFileId = driveFile.data.id || null;
 
+      // Set permission to "anyone with link" so it can be viewed in the app
+      if (googleFileId) {
+        await drive.permissions.create({
+          fileId: googleFileId,
+          requestBody: {
+            role: "reader",
+            type: "anyone",
+          },
+        });
+      }
+
       // Clean up local file
       fs.unlinkSync(req.file.path);
     } else if (youtubeUrl) {
