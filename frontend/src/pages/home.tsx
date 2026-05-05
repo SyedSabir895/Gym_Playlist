@@ -6,7 +6,7 @@ import { VideoForm } from "@/components/VideoForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, Dumbbell, PlaySquare, TrendingUp, Zap } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import AnimatedButton from "@/components/ui/animated-button";
+
 
 export default function Home() {
   const { user } = useAuth();
@@ -29,22 +29,20 @@ export default function Home() {
           <p className="text-lg text-foreground/60 max-w-2xl">
             Organize, save, and track your favorite gym workout videos. Build a personalized library organized by muscle groups and training styles.
           </p>
-          <div className="flex gap-4 pt-4">
-            <AnimatedButton
-              as="a"
+          <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <Link
               href="/register"
-              className="gap-2 cursor-pointer bg-primary border-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 text-lg"
+              className="flex items-center justify-center gap-2 cursor-pointer bg-primary border border-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 text-lg rounded-md font-bold transition-all"
             >
               <Zap className="w-5 h-5" />
               Get Started
-            </AnimatedButton>
-            <AnimatedButton
-              as="a"
+            </Link>
+            <Link
               href="/login"
-              className="cursor-pointer px-6 py-3 text-lg bg-transparent border-border text-foreground hover:bg-yellow-700"
+              className="flex items-center justify-center cursor-pointer px-6 py-3 text-lg bg-transparent border border-border text-foreground hover:bg-white/5 rounded-md font-bold transition-all"
             >
               Sign In
-            </AnimatedButton>
+            </Link>
           </div>
         </section>
 

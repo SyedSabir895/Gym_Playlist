@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import AnimatedButton from "@/components/ui/animated-button";
+
 import { useAuth } from "@/contexts/AuthContext";
 import chestBusterLogo from "@/assets/chesttt.png";
 
@@ -51,12 +51,12 @@ export function Navbar() {
             </>
           ) : (
             <>
-              <AnimatedButton as="a" href="/login">
+              <Link href="/login" className="px-4 py-2 rounded-md hover:bg-secondary/50 transition-colors font-medium">
                 Sign In
-              </AnimatedButton>
-              <AnimatedButton as="a" href="/register">
+              </Link>
+              <Link href="/register" className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors font-bold">
                 Sign Up
-              </AnimatedButton>
+              </Link>
             </>
           )}
         </div>
@@ -103,21 +103,21 @@ export function Navbar() {
         </>
       ) : (
         <>
-          <AnimatedButton
-            as="a"
+          <Link
             href="/login"
-            className="w-full text-center bg-white text-white py-2 rounded-md"
+            onClick={() => setOpen(false)}
+            className="block w-full text-center bg-secondary text-secondary-foreground py-2 rounded-md font-medium"
           >
             Sign In
-          </AnimatedButton>
+          </Link>
 
-          <AnimatedButton
-            as="a"
+          <Link
             href="/register"
-            className="w-full text-center bg-primary text-white py-2 rounded-md"
+            onClick={() => setOpen(false)}
+            className="block w-full text-center bg-primary text-primary-foreground py-2 rounded-md font-medium"
           >
             Sign Up
-          </AnimatedButton>
+          </Link>
         </>
       )}
     </div>
