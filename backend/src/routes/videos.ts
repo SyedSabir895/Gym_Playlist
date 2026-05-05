@@ -98,13 +98,20 @@ router.post("/videos", verifyToken, upload.single("videoFile"), async (req: Auth
 
       // Set permission to "anyone with link" so it can be viewed in the app
       if (googleFileId) {
-        await drive.permissions.create({
-          fileId: googleFileId,
-          requestBody: {
-            role: "reader",
-            type: "anyone",
-          },
-        });
+        try {
+          console.log(`Attempting to set public permissions for file: ${googleFileId}`);
+          await drive.permissions.create({
+            fileId: googleFileId,
+            requestBody: {
+              role: "reader",
+              type: "anyone",
+            },
+          });
+          console.log("Permissions set to public successfully.");
+        } catch (permError) {
+          console.error("Error setting public permissions:", permError);
+          // We don't fail the whole request, but we log the error
+        }
       }
 
       // Clean up local file
