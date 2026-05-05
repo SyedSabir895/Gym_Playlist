@@ -29,9 +29,16 @@ export function VideoCard({ video }: { video: Video }) {
         </div>
         <div className="p-4 flex flex-col flex-1 gap-2">
           <div className="flex items-center justify-between gap-2">
-            <Badge variant="secondary" className="bg-secondary/50 hover:bg-secondary text-[10px] uppercase tracking-wider font-bold">
-              {video.category}
-            </Badge>
+            <div className="flex gap-1.5">
+              <Badge variant="secondary" className="bg-secondary/50 hover:bg-secondary text-[10px] uppercase tracking-wider font-bold">
+                {video.category}
+              </Badge>
+              {video.isLocal && (
+                <Badge variant="outline" className="text-[10px] uppercase tracking-wider font-bold border-primary/50 text-primary">
+                  Local
+                </Badge>
+              )}
+            </div>
             <span className="text-[10px] text-muted-foreground font-mono uppercase">
               {format(new Date(video.createdAt), "MMM d, yyyy")}
             </span>

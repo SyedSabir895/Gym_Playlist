@@ -1,12 +1,21 @@
 import { Router } from "express";
 import { z } from "zod";
+import multer from "multer";
+import { google } from "googleapis";
+import fs from "fs";
 import { getDB, ObjectId } from "../lib/mongodb.js";
 import { verifyToken, type AuthRequest } from "../middleware/auth.js";
 
 const router = Router();
 
+// Configure multer for temporary storage before uploading to Drive
+const upload = multer({ 
+  dest: "uploads/",
+  limits: { fileSize: 100 * 1024 * 1024 }, // 100MB limit
+});
+
 const CreateVideoBody = z.object({
-  youtubeUrl: z.string().url(),
+  youtubeUrl: z.string().url().optional(),
   title: z.string().min(1),
   category: z.string().min(1),
   notes: z.string().optional(),
@@ -25,18 +34,99 @@ function extractYoutubeId(url: string): string | null {
 }
 
 function toVideo(doc: Record<string, unknown>) {
+  const isLocal = !!doc.googleFileId;
   return {
     id: String(doc._id),
-    youtubeUrl: doc.youtubeUrl as string,
-    youtubeId: doc.youtubeId as string,
+    youtubeUrl: doc.youtubeUrl as string | undefined,
+    youtubeId: doc.youtubeId as string | undefined,
+    googleFileId: doc.googleFileId as string | undefined,
     title: doc.title as string,
     category: doc.category as string,
     notes: doc.notes as string | undefined,
-    thumbnailUrl: `https://img.youtube.com/vi/${doc.youtubeId}/hqdefault.jpg`,
+    thumbnailUrl: isLocal 
+      ? "https://placehold.co/600x400/000000/FFFFFF/png?text=Google+Drive+Video" 
+      : `https://img.youtube.com/vi/${doc.youtubeId}/hqdefault.jpg`,
+    videoUrl: isLocal 
+      ? doc.googleFileId as string // We will handle this on the frontend
+      : doc.youtubeUrl as string,
+    isLocal,
     createdAt: doc.createdAt as Date,
     userId: String(doc.userId),
   };
 }
+
+router.post("/videos", verifyToken, upload.single("videoFile"), async (req: AuthRequest, res) => {
+  try {
+    const googleToken = req.headers["x-google-token"] as string;
+    const parsed = CreateVideoBody.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+
+    const { youtubeUrl, title, category, notes } = parsed.data;
+    let youtubeId: string | null = null;
+    let googleFileId: string | null = null;
+
+    if (req.file) {
+      if (!googleToken) {
+        res.status(400).json({ error: "Google access token is required for local uploads." });
+        return;
+      }
+
+      // Upload to Google Drive
+      const auth = new google.auth.OAuth2();
+      auth.setCredentials({ access_token: googleToken });
+      const drive = google.drive({ version: "v3", auth });
+
+      const fileMetadata = {
+        name: `${title}-${Date.now()}`,
+        mimeType: req.file.mimetype,
+      };
+      const media = {
+        mimeType: req.file.mimetype,
+        body: fs.createReadStream(req.file.path),
+      };
+
+      const driveFile = await drive.files.create({
+        requestBody: fileMetadata,
+        media: media,
+        fields: "id",
+      });
+
+      googleFileId = driveFile.data.id || null;
+
+      // Clean up local file
+      fs.unlinkSync(req.file.path);
+    } else if (youtubeUrl) {
+      youtubeId = extractYoutubeId(youtubeUrl);
+      if (!youtubeId) {
+        res.status(400).json({ error: "Invalid YouTube URL." });
+        return;
+      }
+    } else {
+      res.status(400).json({ error: "Either a YouTube URL or a video file is required." });
+      return;
+    }
+
+    const db = await getDB();
+    const doc = {
+      youtubeUrl: youtubeUrl || null,
+      youtubeId: youtubeId || null,
+      googleFileId: googleFileId || null,
+      title,
+      category,
+      notes: notes ?? null,
+      userId: new ObjectId(req.userId!),
+      createdAt: new Date(),
+    };
+    const result = await db.collection("videos").insertOne(doc);
+    res.status(201).json(toVideo({ ...doc, _id: result.insertedId }));
+  } catch (err) {
+    console.error("Save video error:", err);
+    res.status(500).json({ error: "Failed to save video to Google Drive" });
+  }
+});
 
 router.get("/videos/stats", verifyToken, async (req: AuthRequest, res) => {
   try {
@@ -64,36 +154,6 @@ router.get("/videos", verifyToken, async (req: AuthRequest, res) => {
     res.json(docs.map(toVideo));
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch videos" });
-  }
-});
-
-router.post("/videos", verifyToken, async (req: AuthRequest, res) => {
-  const parsed = CreateVideoBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-  const youtubeId = extractYoutubeId(parsed.data.youtubeUrl);
-  if (!youtubeId) {
-    res.status(400).json({ error: "Invalid YouTube URL." });
-    return;
-  }
-  try {
-    const db = await getDB();
-    const doc = {
-      youtubeUrl: parsed.data.youtubeUrl,
-      youtubeId,
-      title: parsed.data.title,
-      category: parsed.data.category,
-      notes: parsed.data.notes ?? null,
-      thumbnailUrl: `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`,
-      userId: new ObjectId(req.userId!),
-      createdAt: new Date(),
-    };
-    const result = await db.collection("videos").insertOne(doc);
-    res.status(201).json(toVideo({ ...doc, _id: result.insertedId }));
-  } catch (err) {
-    res.status(500).json({ error: "Failed to save video" });
   }
 });
 

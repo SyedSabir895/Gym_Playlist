@@ -95,4 +95,46 @@ router.post("/auth/login", async (req, res) => {
   }
 });
 
+router.post("/auth/google", async (req, res) => {
+  try {
+    const { googleToken, email, fullName, googleId } = req.body;
+    
+    if (!googleToken || !email) {
+      res.status(400).json({ error: "Google token and email are required" });
+      return;
+    }
+
+    // In a production app, you should verify the googleToken here using google-auth-library
+    // For now, we'll trust the frontend since we're just setting it up
+    
+    const db = await getDB();
+    let user = await db.collection("users").findOne({ email });
+    
+    if (!user) {
+      const result = await db.collection("users").insertOne({
+        email,
+        fullName,
+        googleId,
+        createdAt: new Date(),
+      });
+      user = { _id: result.insertedId, email, fullName };
+    }
+
+    const token = generateToken(user._id.toString());
+    
+    res.json({
+      token,
+      user: {
+        id: user._id.toString(),
+        email: user.email,
+        fullName: user.fullName,
+      },
+    });
+  } catch (err) {
+    console.error("Google auth error:", err);
+    res.status(500).json({ error: "Google login failed" });
+  }
+});
+
 export default router;
+

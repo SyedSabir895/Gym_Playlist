@@ -11,6 +11,7 @@ export function verifyToken(req: AuthRequest, res: Response, next: NextFunction)
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      console.log("Auth failed: No token provided");
       res.status(401).json({ error: "No token provided" });
       return;
     }
@@ -20,6 +21,7 @@ export function verifyToken(req: AuthRequest, res: Response, next: NextFunction)
     req.userId = decoded.userId;
     next();
   } catch (err) {
+    console.error("Auth failed: Invalid token", err);
     res.status(401).json({ error: "Invalid token" });
   }
 }

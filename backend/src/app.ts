@@ -14,5 +14,6 @@ connectDB().catch((err) => {
 });
 
 app.use("/api", router);
+app.use("/uploads", express.static("uploads"));
 
 export default app;

@@ -79,13 +79,27 @@ export default function VideoDetail() {
 
       <div className="-mx-4 sm:mx-0 rounded-xl overflow-hidden bg-card border border-border/50 shadow-xl ring-1 ring-white/5">
         <div className="aspect-5/4 md:aspect-video w-full bg-black relative">
-          <iframe
-            src={`https://www.youtube.com/embed/${video.youtubeId}?autoplay=0&rel=0`}
-            title={video.title}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="absolute inset-0 w-full h-full border-0"
-          />
+          {video.googleFileId ? (
+            <iframe
+              src={`https://drive.google.com/file/d/${video.googleFileId}/preview`}
+              className="absolute inset-0 w-full h-full border-0"
+              allow="autoplay"
+            />
+          ) : video.isLocal ? (
+            <video
+              src={video.videoUrl}
+              controls
+              className="absolute inset-0 w-full h-full border-0"
+            />
+          ) : (
+            <iframe
+              src={`https://www.youtube.com/embed/${video.youtubeId}?autoplay=0&rel=0`}
+              title={video.title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="absolute inset-0 w-full h-full border-0"
+            />
+          )}
         </div>
       </div>
 
@@ -93,6 +107,13 @@ export default function VideoDetail() {
         <div className="space-y-4 flex-1">
           <h1 className="text-3xl md:text-4xl font-black leading-tight">{video.title}</h1>
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+            {video.googleFileId && (
+              <a href={`https://drive.google.com/file/d/${video.googleFileId}/view`} target="_blank" rel="noreferrer">
+                <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/20 font-bold uppercase tracking-widest px-3 py-1 cursor-pointer transition-colors">
+                  Open in Drive
+                </Badge>
+              </a>
+            )}
             <Link href={`/category/${encodeURIComponent(video.category)}`}>
               <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 font-bold uppercase tracking-widest px-3 py-1 cursor-pointer transition-colors">
                 <Folder className="w-3 h-3 mr-2 inline-block" />
