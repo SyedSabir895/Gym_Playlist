@@ -74,15 +74,17 @@ export const api = {
   listVideos: (category?: string) =>
     fetchApi<Video[]>(`/videos${category ? `?category=${encodeURIComponent(category)}` : ""}`),
   createVideo: (data: CreateVideoInput) => {
+    const googleToken = localStorage.getItem("googleToken");
     if (data.videoFile) {
       const formData = new FormData();
       formData.append("videoFile", data.videoFile);
       formData.append("title", data.title);
       formData.append("category", data.category);
       if (data.notes) formData.append("notes", data.notes);
+      if (googleToken) formData.append("googleToken", googleToken); // Send in body
       return fetchApi<Video>("/videos", { method: "POST", body: formData });
     }
-    return fetchApi<Video>("/videos", { method: "POST", body: JSON.stringify(data) });
+    return fetchApi<Video>("/videos", { method: "POST", body: JSON.stringify({ ...data, googleToken }) });
   },
   getVideo: (id: string) => fetchApi<Video>(`/videos/${id}`),
   deleteVideo: (id: string) =>

@@ -57,7 +57,14 @@ function toVideo(doc: Record<string, unknown>) {
 
 router.post("/videos", verifyToken, upload.single("videoFile"), async (req: AuthRequest, res) => {
   try {
-    const googleToken = (req.headers["x-google-token"] as string)?.trim();
+    const headerToken = req.headers["x-google-token"] as string;
+    const bodyToken = req.body.googleToken as string;
+    const googleToken = (bodyToken || headerToken)?.trim();
+
+    if (googleToken) {
+      console.log(`Received Google Token: ${googleToken.substring(0, 10)}... (length: ${googleToken.length})`);
+    }
+
     const parsed = CreateVideoBody.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: parsed.error.message });
