@@ -16,7 +16,8 @@
     "noUnusedParameters": false,
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["node"]
   },
-  "include": ["src"]
+  "include": ["src", "capacitor.config.ts", "vite.config.ts"]
 }

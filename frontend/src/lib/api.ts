@@ -1,4 +1,10 @@
-export const API_BASE = (import.meta as any).env.VITE_API_URL || "/api";
+import { Capacitor } from '@capacitor/core';
+
+export let API_BASE = (import.meta as any).env.VITE_API_URL || "/api";
+
+if (Capacitor.isNativePlatform() && API_BASE.includes("localhost")) {
+  API_BASE = API_BASE.replace("localhost", "10.0.2.2");
+}
 
 export interface Video {
   id: string;

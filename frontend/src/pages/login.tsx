@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, Loader } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useGoogleLogin } from "@react-oauth/google";
+import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -32,16 +32,13 @@ export default function Login() {
     }
   };
 
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
+  const googleLogin = useGoogleAuth(
+    // onSuccess — works for both web and Android
+    async ({ accessToken, userInfo }) => {
       setIsLoading(true);
       setError("");
       try {
-        const userInfo = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-        }).then(res => res.json());
-        
-        await loginWithGoogle(tokenResponse.access_token, userInfo);
+        await loginWithGoogle(accessToken, userInfo);
         navigate("/library");
       } catch (err) {
         console.error("Google login error:", err);
@@ -50,11 +47,11 @@ export default function Login() {
         setIsLoading(false);
       }
     },
-    onError: () => {
-      setError("Google Login failed. Please try again.");
-    },
-    scope: "https://www.googleapis.com/auth/drive.file",
-  });
+    // onError
+    (errMsg) => {
+      setError(errMsg);
+    }
+  );
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
