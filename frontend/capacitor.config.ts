@@ -23,7 +23,7 @@ const config: CapacitorConfig = {
   plugins: {
     GoogleAuth: {
       // Use your Web Application Client ID here — works for both web and Android
-      clientId: process.env.VITE_GOOGLE_CLIENT_ID || '',
+      clientId: '920943896540-0cf1agaksfgjrgnclp1nq5d7t6091a26.apps.googleusercontent.com',
       scopes: ['profile', 'email', 'https://www.googleapis.com/auth/drive.file'],
       // @ts-ignore - plugin supports this but types might be outdated
       grantOfflineAccess: true,
