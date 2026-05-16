@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ChestBuster</string>
+    <string name="title_activity_main">ChestBuster</string>
+    <string name="package_name">com.gym.videos</string>
+    <string name="custom_url_scheme">com.gym.videos</string>
+    <string name="server_client_id">920943896540-0cf1agaksfgjrgnclp1nq5d7t6091a26.apps.googleusercontent.com</string>
+</resources>
